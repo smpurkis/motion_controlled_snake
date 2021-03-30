@@ -6,14 +6,16 @@ import * as tf from "@tensorflow/tfjs";
 function defineModel() {
     const model = tf.sequential();
     // model.add(tf.layers.dense({units: 1, inputShape: [1]}));
-    model.add(tf.layers.conv2d({kernelSize: 3, filters: 8, strides: 1, padding: "same", inputShape: [200, 200, 3]}))
+    model.add(tf.layers.conv2d({kernelSize: 3, filters: 4, strides: 1, padding: "same", inputShape: [200, 200, 3]}))
     model.add(tf.layers.reLU())
-    model.add(tf.layers.conv2d({kernelSize: 3, filters: 8, strides: 1, padding: "same"}))
+    model.add(tf.layers.conv2d({kernelSize: 3, filters: 4, strides: 1, padding: "same"}))
+    model.add(tf.layers.reLU())
+    model.add(tf.layers.conv2d({kernelSize: 3, filters: 4, strides: 1, padding: "same"}))
     model.add(tf.layers.reLU())
     model.add(tf.layers.flatten())
-    model.add(tf.layers.dense({units: 1}))
-    model.add(tf.layers.activation({activation: "linear"}))
-    model.compile({loss: tf.losses.meanSquaredError, optimizer: 'adam', metrics: ['accuracy']});
+    model.add(tf.layers.dense({units: 4}))
+    model.add(tf.layers.activation({activation: "softmax"}))
+    model.compile({loss: tf.losses.softmaxCrossEntropy, optimizer: 'adam', metrics: ['accuracy']});
     model.summary()
     return model
 }
@@ -23,14 +25,15 @@ function getTensorsAndTargets(state) {
     tf.max(state.up).print()
     tensorsTargets.tensors = tf.concat([state.up, state.down, state.left, state.right])
     tensorsTargets.tensors = tensorsTargets.tensors.reshape([4, 200, 200, 3])
-    tensorsTargets.targets = tf.tensor([0, 1, 2, 3], [4])
+    tensorsTargets.targets = tf.tensor([0, 1, 2, 3], [4], "int32")
+    tensorsTargets.targets = tf.oneHot(tensorsTargets.targets, 4)
     return tensorsTargets
 }
 
 async function fitModel(model, tensorsTargets) {
     // Train the model using the data.
     console.log("training network")
-    const history = await model.fit(tensorsTargets.tensors, tensorsTargets.targets, {epochs: 10})
+    const history = await model.fit(tensorsTargets.tensors, tensorsTargets.targets, {epochs: 5})
     console.log("history: ", history)
     console.log("finished training")
     model.predict(tensorsTargets.tensors).print();

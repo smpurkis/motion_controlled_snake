@@ -12,6 +12,7 @@ function WebcamCapture(props) {
     let height = 200;
     let width = 200;
     let [showImg, setShowImg] = useState(false);
+    let im = document.getElementById("img");
 
     async function loadImg(url) {
         let img = new Image()
@@ -22,6 +23,7 @@ function WebcamCapture(props) {
         img = await img
         let tensor = tf.browser.fromPixels(img)
         tf.max(tensor).print()
+        tensor.print()
         props.dispatch({
             type: id.current,
             tensor: tensor
@@ -32,19 +34,18 @@ function WebcamCapture(props) {
         if (!showImg) {
             console.log(id)
             let imageSrc = webcamRef.current.getScreenshot();
-            let rawImageSrc = imageSrc.slice(23)
-            loadImg(rawImageSrc)
-            let img = new Image()
-            img.height = height
-            img.width = width
-            img.crossOrigin = 'anonymous'
-            img.src = rawImageSrc
-            let tensor = tf.browser.fromPixels(img)
-            tf.max(tensor).print()
-            props.dispatch({
-                type: id.current,
-                tensor: tensor
-            })
+            loadImg(imageSrc)
+            // let img = new Image()
+            // img.height = height
+            // img.width = width
+            // img.crossOrigin = 'anonymous'
+            // img.src = imageSrc
+            // let tensor = tf.browser.fromPixels(img)
+            // tf.max(tensor).print()
+            // props.dispatch({
+            //     type: id.current,
+            //     tensor: tensor
+            // })
             setImgSrc(imageSrc);
             setShowImg(true);
         } else {
@@ -67,6 +68,7 @@ function WebcamCapture(props) {
             />)}
             {showImg && (
                 <img
+                    id="img"
                     src={imgSrc}
                     alt=""
                 />
