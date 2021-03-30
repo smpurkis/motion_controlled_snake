@@ -1,25 +1,33 @@
-import logo from './logo.svg';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import React from "react";
+import Controller from './components/controller';
+import Snake from './components/snake';
+
+
+function title() {
+    return (
+        <div>
+            <h1>Snake Game!</h1>
+            {/*<p>With some interesting Controllers</p>*/}
+        </div>
+    )
 }
+
+function App() {
+    return (
+        <div className="App">
+            <header className="App-header">
+                <div>{title()}</div>
+                {/* eslint-disable-next-line react/style-prop-object */}
+                <div class="container">
+                    <Snake/>
+                    <Controller/>
+                </div>
+            </header>
+        </div>
+    );
+}
+
 
 export default App;
