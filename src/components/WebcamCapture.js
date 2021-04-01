@@ -12,7 +12,6 @@ function WebcamCapture(props) {
     let height = 200;
     let width = 200;
     let [showImg, setShowImg] = useState(false);
-    let im = document.getElementById("img");
 
     async function loadImg(url) {
         let img = new Image()
