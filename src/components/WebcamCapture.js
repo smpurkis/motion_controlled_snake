@@ -1,8 +1,9 @@
 import Webcam from "react-webcam";
 import * as tf from '@tensorflow/tfjs';
 
-import React, {useCallback, useRef, useState} from "react";
-import {connect} from "react-redux";
+import React, { useCallback, useRef, useState, useEffect } from "react";
+import { connect } from "react-redux";
+import { predict } from "./model";
 
 
 function WebcamCapture(props) {
@@ -12,6 +13,8 @@ function WebcamCapture(props) {
     let height = 200;
     let width = 200;
     let [showImg, setShowImg] = useState(false);
+    const isController = useRef(id.current === "controller")
+    let [rerender, setRerender] = useState(true)
 
     async function loadImg(url) {
         let img = new Image()
@@ -21,17 +24,39 @@ function WebcamCapture(props) {
         img.width = width
         img = await img
         let tensor = tf.browser.fromPixels(img)
-        tf.max(tensor).print()
-        tensor.print()
+        // tf.max(tensor).print()
+        // tensor.print()
         props.dispatch({
             type: id.current,
             tensor: tensor
         })
+        // return tensor
     }
+
+    useEffect(() => {
+        if (isController.current) {
+            let imageSrc = webcamRef.current.getScreenshot();
+            loadImg(imageSrc);
+        }
+    }, [])
+
+    async function captureWebcam() {
+        let imageSrc = webcamRef.current.getScreenshot();
+        let image = await loadImg(imageSrc);
+    }
+
+    useEffect(() => {
+        setTimeout(() => {
+            if (isController.current && props.state.models?.hasOwnProperty("model")) {
+                captureWebcam()
+            }
+            setRerender(!rerender)
+        }, 350)
+    }, [rerender])
 
     const capture = useCallback((e) => {
         if (!showImg) {
-            console.log(id)
+            // console.log(id)
             let imageSrc = webcamRef.current.getScreenshot();
             loadImg(imageSrc)
             // let img = new Image()
@@ -72,10 +97,10 @@ function WebcamCapture(props) {
                     alt=""
                 />
             )}
-            <button onClick={capture} style={{
+            {!isController.current && (<button onClick={capture} style={{
                 height: "30px"
             }}>Capture
-            </button>
+            </button>)}
         </>
     );
 }

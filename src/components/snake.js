@@ -1,5 +1,6 @@
-import React, {useEffect, useRef, useState} from "react";
-import {connect} from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import { connect } from "react-redux";
+import { predict } from "./model";
 
 function Snake(props) {
 
@@ -22,6 +23,8 @@ function Snake(props) {
     let tailLength = useRef(0)
     let lastPositions = useRef([])
     let [snakeDirection, setSnakeDirection] = useState("down")
+
+    let [rerender, setRerender] = useState(true)
 
 
     function moveSnake() {
@@ -62,7 +65,6 @@ function Snake(props) {
             setDotPosition()
             tailLength.current = tailLength.current + 1
             updateScore()
-            console.log(lastPositions.current)
         }
     }
 
@@ -70,11 +72,19 @@ function Snake(props) {
         let tailPositions = lastPositions.current
         tailPositions = tailPositions.slice(1, tailPositions.length)
         tailPositions.forEach((pos) => {
-            console.log(pos, snakeTop, snakeLeft)
+            // console.log(pos, snakeTop, snakeLeft)
             if (Math.abs(pos.top - snakeTop) === 0 && Math.abs(pos.left - snakeLeft) === 0) {
                 alert("Snake is eating itself!!")
             }
         })
+    }
+
+    async function setDirection() {
+        let models = props.state.models
+        let latestFrame = props.state.control
+        let prediction = await predict(latestFrame, models.model, models.mobilenet)
+        // console.log(prediction);
+        setSnakeDirection(prediction)
     }
 
     function updateScore() {
@@ -82,38 +92,54 @@ function Snake(props) {
     }
 
     function gameLoop() {
+        setDirection()
         checkTailCollision()
         moveSnake()
         checkDotCollision()
     }
 
-
     useEffect(() => {
         setDotPosition()
         setInterval(() => {
-            if (props.state.play) {
-                gameLoop()
-            }
+            // if (props.state.play) {
+            //     gameLoop()
+            // }
         }, 70)
     }, [])
 
-    function spacebarPressed(e) {
-        if (e.code === "ArrowUp" && snakeDirection !== "down") {
-            snakeDirection = "up"
-            setSnakeDirection(snakeDirection);
-        } else if (e.code === "ArrowDown" && snakeDirection !== "up") {
-            snakeDirection = "down"
-            setSnakeDirection(snakeDirection);
-        } else if (e.code === "ArrowLeft" && snakeDirection !== "right") {
-            snakeDirection = "left"
-            setSnakeDirection(snakeDirection);
-        } else if (e.code === "ArrowRight" && snakeDirection !== "left") {
-            snakeDirection = "right"
-            setSnakeDirection(snakeDirection);
-        }
-    }
+    useEffect(() => {
+        setTimeout(() => {
+            if (props.state.play) {
+                gameLoop()
+            }
+            setRerender(!rerender)
+            // console.log(props.state);
+        }, 150)
+    }, [rerender])
 
-    window.addEventListener("keydown", spacebarPressed)
+    // function spacebarPressed(e) {
+    //     if (e.code === "ArrowUp" && snakeDirection !== "down") {
+    //         snakeDirection = "up"
+    //         setSnakeDirection(snakeDirection);
+    //     } else if (e.code === "ArrowDown" && snakeDirection !== "up") {
+    //         snakeDirection = "down"
+    //         setSnakeDirection(snakeDirection);
+    //     } else if (e.code === "ArrowLeft" && snakeDirection !== "right") {
+    //         snakeDirection = "left"
+    //         setSnakeDirection(snakeDirection);
+    //     } else if (e.code === "ArrowRight" && snakeDirection !== "left") {
+    //         snakeDirection = "right"
+    //         setSnakeDirection(snakeDirection);
+    //     }
+    // }
+
+    // window.addEventListener("keydown", spacebarPressed)
+
+    // const [fakeCurrentDate, setFakeCurrentDate] = useState(new Date()) // default value can be anything you want
+
+    // useEffect(() => {
+    //     setTimeout(() => setFakeCurrentDate(new Date()), 1000)
+    // }, [fakeCurrentDate])
 
     const grid = {
         width: containerStyle.width,
@@ -156,16 +182,17 @@ function Snake(props) {
         <div>
             <h1 id="score" style={scoreStyle}>Score: {score}</h1>
             <div className="grid" id="grid" style={grid}>
-                <div className="snake" id="snake" style={snake}/>
+                <div className="snake" id="snake" style={snake} />
                 {lastPositions.current.map((pos) => {
                     return <div style={{
                         ...snakeBase,
                         top: `${pos.top}px`,
                         left: `${pos.left}px`
-                    }} key={lastPositions.current.indexOf(pos)}/>
+                    }} key={lastPositions.current.indexOf(pos)} />
                 })}
-                <div className="dot" id="dot" style={dot}/>
+                <div className="dot" id="dot" style={dot} />
             </div>
+            {/* <h2>{fakeCurrentDate.toString()}</h2> */}
         </div>
     );
 }
