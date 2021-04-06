@@ -56,9 +56,19 @@ function Controller(props) {
         display: "grid",
         position: "absolute"
     }
+    const pStyle = {
+        fontSize: "50%",
+        textAlign: "left",
+        maxWidth: "800px"
+    }
     return (
         <div>
             <h3>Controls</h3>
+            <p style={pStyle}>
+                Set each of the four controls to a different hand position, face expression etc. As long as they are different
+                you should be able to use it as a controller.
+                Once all of these are set the game will automatically begin. (To reset all the controls, refresh the page.)
+            </p>
             <div style={controlContainer}>
                 <div style={{ ...cameraBlock, top: "0", left: "33.5%" }}>
                     <WebcamCapture id="up" />
@@ -77,7 +87,9 @@ function Controller(props) {
                 </div>
                 <div style={{ ...cameraBlock, top: "-20%", left: "-10%" }}>
                 </div>
+                
             </div>
+
         </div>
     );
 }

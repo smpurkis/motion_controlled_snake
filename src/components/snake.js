@@ -23,6 +23,7 @@ function Snake(props) {
     let tailLength = useRef(0)
     let lastPositions = useRef([])
     let [snakeDirection, setSnakeDirection] = useState("down")
+    let [gameSpeed, setGameSpeed] = useState(150)
 
     let [rerender, setRerender] = useState(true)
 
@@ -100,11 +101,6 @@ function Snake(props) {
 
     useEffect(() => {
         setDotPosition()
-        setInterval(() => {
-            // if (props.state.play) {
-            //     gameLoop()
-            // }
-        }, 70)
     }, [])
 
     useEffect(() => {
@@ -114,7 +110,7 @@ function Snake(props) {
             }
             setRerender(!rerender)
             // console.log(props.state);
-        }, 150)
+        }, gameSpeed)
     }, [rerender])
 
     // function spacebarPressed(e) {
@@ -181,6 +177,12 @@ function Snake(props) {
     return (
         <div>
             <h1 id="score" style={scoreStyle}>Score: {score}</h1>
+            <div style={{ display: "flex" }}>
+                <input type="range" min="10" max="1000" value={gameSpeed} style={{ width: "400px" }}
+                    class="slider" id="gameSpeedSlider" onChange={(event) => { setGameSpeed(event.target.value) }} />
+                <p style={{ fontSize: "25px" }}>Game Speed: {gameSpeed}ms</p>
+
+            </div>
             <div className="grid" id="grid" style={grid}>
                 <div className="snake" id="snake" style={snake} />
                 {lastPositions.current.map((pos) => {
@@ -192,7 +194,6 @@ function Snake(props) {
                 })}
                 <div className="dot" id="dot" style={dot} />
             </div>
-            {/* <h2>{fakeCurrentDate.toString()}</h2> */}
         </div>
     );
 }
